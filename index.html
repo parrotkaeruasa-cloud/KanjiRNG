@@ -1,84 +1,256 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>ALIEN LAB — Physics Sandbox</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080711">
+<title>漢魂 RNG: OVERDRIVE</title>
 <style>
-:root{--ink:#17212b;--muted:#71808e;--line:#dce5eb;--blue:#1c9cc5;--cyan:#62d7e9;--panel:rgba(255,255,255,.91)}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#edf3f6;font-family:Inter,"Noto Sans JP",system-ui,sans-serif;color:var(--ink)}
-#scene{position:fixed;inset:0;display:block}#top{position:fixed;left:18px;top:16px;z-index:3;display:flex;align-items:center;gap:12px;pointer-events:none}.logo{font-weight:900;letter-spacing:.13em;font-size:15px}.sub{font-size:10px;letter-spacing:.18em;color:#71818d;margin-top:3px}.dot{width:10px;height:10px;border-radius:50%;background:#47d4b1;box-shadow:0 0 14px #47d4b1}
-.panel{position:fixed;z-index:3;background:var(--panel);border:1px solid rgba(190,207,218,.8);box-shadow:0 12px 40px rgba(31,57,74,.10);backdrop-filter:blur(14px);border-radius:16px}.left{left:18px;top:82px;width:190px;padding:13px}.right{right:18px;top:18px;width:190px;padding:14px}.panel-title{font-size:10px;font-weight:900;letter-spacing:.16em;color:#71808e;margin:0 0 10px}.tool{width:100%;display:flex;align-items:center;gap:10px;border:1px solid transparent;background:transparent;padding:9px 10px;border-radius:10px;text-align:left;color:#344451;font-weight:700;font-size:12px;cursor:pointer;margin:3px 0}.tool:hover{background:#f0f7fa}.tool.active{background:#e4f7fb;border-color:#9ddce8;color:#087fa4}.ico{width:25px;height:25px;border-radius:8px;background:#eaf1f5;display:grid;place-items:center;font-size:15px}.tool.active .ico{background:#c9eff6}.hint{font-size:10px;color:#82909a;line-height:1.6;margin:10px 3px 1px}.stat{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin:9px 0;color:#657582}.stat b{color:#263844;font-size:11px}.pill{font-size:9px;letter-spacing:.12em;color:#1686a6;background:#e5f7fb;padding:5px 8px;border-radius:99px;font-weight:900}.actions{display:flex;gap:7px;margin-top:12px}.action{flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 5px;font-size:10px;font-weight:800;color:#40515d;cursor:pointer}.action.primary{background:#172d3b;color:#fff;border-color:#172d3b}.action:hover{filter:brightness(.97)}#bottom{position:fixed;z-index:3;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.88);border:1px solid #dce5eb;border-radius:99px;padding:9px 15px;box-shadow:0 8px 30px rgba(31,57,74,.10);font-size:10px;color:#71808e;white-space:nowrap}.key{padding:3px 6px;border:1px solid #d5e0e6;border-radius:5px;background:#fff;color:#44545f;font-weight:800}#toast{position:fixed;z-index:5;left:50%;top:78px;transform:translate(-50%,-8px);opacity:0;transition:.2s;background:#172d3b;color:#fff;padding:9px 14px;border-radius:99px;font-size:11px;pointer-events:none}#toast.show{opacity:1;transform:translate(-50%,0)}#loading{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:#eef4f7;color:#243845;font-size:13px;letter-spacing:.12em}#loading small{display:block;color:#82909a;margin-top:8px;text-align:center;font-size:10px;letter-spacing:0}#crosshair{position:fixed;z-index:2;left:50%;top:50%;width:10px;height:10px;border:1px solid rgba(28,156,197,.45);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:.5}
-@media(max-width:650px){.left{left:10px;top:auto;bottom:72px;width:156px;padding:9px}.right{right:10px;top:10px;width:150px;padding:10px}.tool{padding:7px;font-size:11px}.hint{display:none}#top{left:12px;top:10px}.logo{font-size:12px}#bottom{bottom:10px;font-size:9px}.stat{margin:6px 0}}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;900&display=swap');
+:root{--bg:#080711;--panel:#151222;--line:#3b3154;--gold:#ffd878;--violet:#b58aff;--muted:#a49ab9}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#38205b 0,transparent 48%),var(--bg);color:#f8f4ff;font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden}button,select{font:inherit}button{color:white;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}
+.top{height:66px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:#100d1bed;border-bottom:1px solid #3a2b50;backdrop-filter:blur(14px)}.logo{font-weight:900;font-size:22px;letter-spacing:2px}.logo span{color:var(--gold)}.player{display:flex;gap:16px;font-size:13px}.level{color:var(--gold)}.currency{color:#d0aaff}
+.hero{text-align:center;padding:42px 12px 25px;background:radial-gradient(ellipse at 50% 0,#6d329455,transparent 70%)}.hero small{color:#d9b7ff;letter-spacing:5px}.hero h1{font-size:clamp(38px,7vw,65px);line-height:1.15;margin:14px 0;font-weight:900}.hero h1 span{background:linear-gradient(90deg,#fff0b8,#f3baff,#8c9dff);background-clip:text;color:transparent}.hero p{font-size:12px;color:#b4a8c7}.xp-area{max-width:360px;margin:17px auto 0;text-align:left}.xp-label{display:flex;justify-content:space-between;font-size:11px;color:#d1c2e9}.xp-track,.bar{height:8px;background:#30263f;border-radius:20px;overflow:hidden;margin-top:6px}.xp-fill{height:100%;width:0;background:linear-gradient(90deg,#8e52ff,#ffe08a);transition:.4s}
+.nav{position:sticky;top:66px;z-index:19;display:flex;justify-content:center;gap:7px;padding:11px;background:#0e0c17ed;border-block:1px solid #30263e;backdrop-filter:blur(12px)}.nav button{padding:10px 20px;background:#1b1728;border:1px solid #39304b;border-radius:9px;color:#aaa1ba;font-weight:700}.nav button.active{background:linear-gradient(120deg,#6840a0,#38265d);border-color:#c19aff;color:white;box-shadow:0 0 20px #9e5cff44}
+main{max-width:1120px;margin:auto;padding:26px 16px 70px}.page{display:none}.page.active{display:block}.heading{text-align:center;margin-bottom:22px}.heading h2{margin:0;font-size:27px}.heading p{color:var(--muted);font-size:13px}.panel{background:linear-gradient(145deg,#1c1830,#100e19);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 15px 45px #0006}
+.summon-panel{max-width:800px;margin:auto;text-align:center}.summon-stage{height:320px;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;border-radius:15px;border:1px solid #574174;background:radial-gradient(circle at 50% 55%,#59338a 0,#211633 35%,#0c0b16 78%);isolation:isolate}.summon-stage:before,.summon-stage:after{content:"";position:absolute;inset:12%;border:1px solid #d0a1ff55;border-radius:50%;box-shadow:0 0 50px #9c4dff55,inset 0 0 40px #9c4dff22;animation:portalSpin 18s linear infinite}.summon-stage:after{inset:22%;border-style:dashed;animation-direction:reverse;animation-duration:12s}.portal-rune{position:absolute;font-size:200px;color:#d2a8ff10;z-index:-1}.summon-kicker{font-size:11px;letter-spacing:6px;color:#e1c7ff;z-index:2}.summon-kanji{font-size:clamp(90px,17vw,145px);font-weight:900;line-height:1.2;color:#fff1c5;text-shadow:0 0 12px #fff,0 0 35px #d38bff,0 0 75px #9a4cff;z-index:2;animation:kanjiFloat 3s ease-in-out infinite}.summon-caption{font-size:12px;color:#d7c5ed;z-index:2;letter-spacing:3px}.stage-flash{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:white}.summon-stage.charging{animation:stagePulse .55s infinite alternate}.summon-stage.charging .summon-kanji{animation:charge .4s infinite alternate}.summon-stage.reveal{animation:revealStage .8s ease}.summon-stage.rarity-Mythic{background:radial-gradient(circle,#74391f,#25142a 48%,#090812)}.summon-stage.rarity-Divine{background:radial-gradient(circle,#8b7136,#332344 48%,#090812)}.summon-stage.rarity-Secret{background:radial-gradient(circle,#7d1b79,#251039 48%,#05030c)}.summon-stage.rarity-Legendary{background:radial-gradient(circle,#77501d,#291b32 48%,#090812)}
+@keyframes portalSpin{to{transform:rotate(360deg)}}@keyframes kanjiFloat{50%{transform:translateY(-8px) scale(1.025)}}@keyframes stagePulse{to{filter:brightness(1.5) saturate(1.5)}}@keyframes charge{to{transform:scale(1.12);filter:blur(1px)}}@keyframes revealStage{0%{transform:scale(.97);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
+.roll-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:18px}.btn{padding:13px 24px;border-radius:10px;border:1px solid #c49aff;font-weight:900;background:linear-gradient(110deg,#9252dc,#4b278b);box-shadow:0 5px 22px #7e40bf44;transition:.18s}.btn:hover{transform:translateY(-2px);filter:brightness(1.2)}.btn.alt{background:linear-gradient(110deg,#443957,#252033);border-color:#81709c}.btn.gold{background:linear-gradient(110deg,#a87927,#614019);border-color:#ffdc8d}.btn small{display:block;font-size:10px;margin-top:4px;color:#eadcff}.notice{font-size:11px;color:#9288a4;margin:12px 0}
+.result-area{margin-top:22px}.result-title{font-size:12px;letter-spacing:4px;color:var(--gold);margin-bottom:12px}.results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:10px}.kanji-card{position:relative;padding:12px 7px 10px;min-height:140px;border:1px solid #51445f;border-radius:12px;background:linear-gradient(145deg,#27203b,#100e19);text-align:center;overflow:hidden;animation:cardDrop .45s both}.kanji-card:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle, currentColor 0,transparent 45%);opacity:.12;pointer-events:none}.symbol{font-size:48px;font-weight:900;line-height:1.3;text-shadow:0 0 18px currentColor;position:relative}.kname{font-size:13px;font-weight:700}.krarity{font-size:10px;margin-top:5px}.kmeta{font-size:10px;color:#b9aec9;margin-top:4px}@keyframes cardDrop{from{opacity:0;transform:translateY(22px) scale(.82)}to{opacity:1;transform:none}}
+.Common{color:#c0c0cb}.Uncommon{color:#72e6a4}.Rare{color:#73c3ff}.Epic{color:#c28aff}.Legendary{color:#ffda75}.Mythic{color:#ff9164}.Divine{color:#fff0a2;text-shadow:0 0 13px #ffe28b,0 0 25px #fff}.Secret{color:#ff79e4;text-shadow:0 0 15px #ff42d6,0 0 38px #ff2bba}
+.rarity-Common{border-color:#777783}.rarity-Uncommon{border-color:#42b979;box-shadow:0 0 12px #40d98b22}.rarity-Rare{border-color:#4a9fe3;box-shadow:0 0 13px #4aaeff33}.rarity-Epic{border-color:#9c62d8;box-shadow:0 0 15px #a04dff33}.rarity-Legendary{border-color:#d7a444;box-shadow:0 0 20px #ffc44b44}.rarity-Mythic{border-color:#f17c45;box-shadow:0 0 25px #ff6a334c}.rarity-Divine{border-color:#fff0a2;box-shadow:0 0 28px #ffe68b66}.rarity-Secret{border-color:#ff4bd2;box-shadow:0 0 32px #f42dcc77}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}.collection-card{padding:14px 8px;text-align:center;border:1px solid #3d344d;border-radius:13px;background:#171424;min-height:165px}.collection-card.locked{filter:grayscale(1);opacity:.4}.lock{font-size:45px;margin:10px}.owned{font-size:10px;color:#b9a8d4;margin-top:7px}
+.filter{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}.filter button,.chip{padding:7px 12px;border-radius:20px;border:1px solid #49405b;background:#201a2e;color:#c9bddb}.filter button.active{background:#674293;border-color:#c39aff}
+.quiz{max-width:760px;margin:auto;text-align:center}.quiz-tools{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-bottom:15px}.quiz-tools label{font-size:12px;color:#bdb1ce}.quiz-tools select{margin-left:5px}.quiz-label{font-size:11px;letter-spacing:4px;color:#cba7ff}.quiz-kanji{font-size:76px;font-weight:900;color:#e6c8ff;text-shadow:0 0 25px #a75dff66;margin:15px}.quiz-question{font-size:15px;color:#c6bad6}.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.quiz-option{background:#29233e;border:1px solid #59466f;border-radius:9px;padding:14px;font-size:14px}.quiz-option:hover{background:#583985}.quiz-option.correct{background:#155238;border-color:#55d995}.quiz-option.wrong{background:#612c43;border-color:#f28ba7}.feedback{min-height:35px;margin-top:15px;font-size:13px;font-weight:700}.ai-note{font-size:11px;color:#a99cbb;margin-top:10px}.quiz-progress{max-width:400px;margin:15px auto}.quiz-progress .bar{height:6px}.quiz-progress .bar div{height:100%;background:linear-gradient(90deg,#8b5bdf,#f3c66c);width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}.stat{padding:12px 6px;background:#191526;border:1px solid #39304a;border-radius:11px;text-align:center}.stat strong{display:block;color:var(--gold);font-size:21px}.stat small{font-size:10px;color:#b3a8c3}
+.battle-arena{position:relative;overflow:hidden;padding:18px;border:1px solid #4b3b68;border-radius:17px;background:radial-gradient(ellipse at 50% 65%,#42275f 0,transparent 55%),linear-gradient(160deg,#1a152b,#090812);box-shadow:inset 0 0 50px #0008}.arena-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#c8b7df;letter-spacing:2px}.boss-tag{color:#ffb27c}.battlefield{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;min-height:245px;padding:15px 3% 8px;position:relative}.battlefield:after{content:"";position:absolute;bottom:10px;left:8%;right:8%;height:22px;border-radius:50%;background:#a66aff20;filter:blur(10px)}.combatant{text-align:center;position:relative;z-index:1}.combatant.enemy{align-self:center}.combatant.player{align-self:center}.fighter-aura{width:150px;height:150px;margin:auto;display:grid;place-items:center;border-radius:50%;position:relative;background:radial-gradient(circle,currentColor 0,transparent 68%);filter:drop-shadow(0 0 16px currentColor);animation:auraPulse 2s ease-in-out infinite}.fighter-aura:before,.fighter-aura:after{content:"";position:absolute;inset:8px;border:2px solid currentColor;border-radius:50%;opacity:.5;animation:ringSpin 7s linear infinite}.fighter-aura:after{inset:22px;border-style:dashed;animation-direction:reverse;animation-duration:11s}.fighter-glyph{font-size:74px;font-weight:900;text-shadow:0 0 12px currentColor,0 0 35px currentColor;z-index:2}.enemy .fighter-aura{color:#ff816c}.player .fighter-aura{color:#c08aff}.fighter-aura.power-Common{color:#c0c0cb}.fighter-aura.power-Uncommon{color:#72e6a4}.fighter-aura.power-Rare{color:#73c3ff}.fighter-aura.power-Epic{color:#c28aff}.fighter-aura.power-Legendary{color:#ffda75}.fighter-aura.power-Mythic{color:#ff9164}.fighter-aura.power-Divine{color:#fff0a2}.fighter-aura.power-Secret{color:#ff79e4}.fighter-aura.power-Mythic:before,.fighter-aura.power-Divine:before,.fighter-aura.power-Secret:before{inset:-4px;border-width:3px;box-shadow:0 0 25px currentColor}.fighter-aura.power-Secret:after{inset:-15px;border-width:2px;box-shadow:0 0 35px currentColor}
+@keyframes auraPulse{50%{transform:scale(1.07);filter:drop-shadow(0 0 28px currentColor)}}@keyframes ringSpin{to{transform:rotate(360deg)}}
+.combatant.hit{animation:hitShake .35s}.combatant.cast .fighter-aura{animation:castBurst .55s}.combatant.ultimate .fighter-aura{animation:ultimateBurst .9s}.battle-arena.shake{animation:arenaShake .35s}.battle-arena.big-shake{animation:arenaShake .65s}@keyframes hitShake{25%{transform:translateX(-10px)}50%{transform:translateX(9px)}75%{transform:translateX(-5px)}}@keyframes castBurst{50%{transform:scale(1.35);filter:brightness(2) drop-shadow(0 0 35px currentColor)}}@keyframes ultimateBurst{50%{transform:scale(1.65);filter:brightness(2.5) drop-shadow(0 0 55px currentColor)}}@keyframes arenaShake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.combat-name{font-weight:800;margin-top:5px}.hp-info{font-size:11px;color:#c2b6d2;margin-top:7px}.hpbar{height:10px;background:#34283f;border-radius:20px;overflow:hidden;margin-top:5px}.hpbar div{height:100%;background:linear-gradient(90deg,#e54c70,#ffae70);transition:width .3s}.enemy .hpbar div{background:linear-gradient(90deg,#e64d5e,#ff9a61)}
+.enemy-intent{text-align:center;color:#ffb18e;font-size:12px;margin:4px 0 12px;min-height:18px}.battle-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0}.battle-controls .btn{padding:11px 15px;font-size:12px}.battle-controls .ultimate-btn{background:linear-gradient(110deg,#b17b26,#7b3c22);border-color:#ffe08a}.battle-controls .guard-btn{background:linear-gradient(110deg,#326b8d,#233a65);border-color:#91d7ff}.battle-controls .skill-btn{background:linear-gradient(110deg,#873d9d,#42276f);border-color:#e5a2ff}
+.gauge-wrap{max-width:450px;margin:12px auto;text-align:center;font-size:11px;color:#d5c2ef}.gauge{height:10px;background:#30243d;border-radius:20px;overflow:hidden;margin-top:6px}.gauge div{height:100%;width:0;background:linear-gradient(90deg,#ad4dff,#ffda7b);transition:width .3s;box-shadow:0 0 15px #c875ff}.battle-log{background:#100d19;border:1px solid #3c304b;border-radius:10px;padding:13px;min-height:52px;font-size:12px;color:#d0c2df;line-height:1.7}.battle-bottom{display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}.battle-bottom select,.quiz-tools select{padding:9px;background:#211a31;color:white;border:1px solid #6d5689;border-radius:8px}
+footer{text-align:center;padding:25px;color:#665c76;font-size:10px;border-top:1px solid #292136}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#38234f;border:1px solid #bd8aff;padding:11px 19px;border-radius:10px;z-index:80;opacity:0;pointer-events:none;transition:.25s;box-shadow:0 0 25px #000a;white-space:nowrap}.toast.show{opacity:1;bottom:30px}
+.cine{position:fixed;inset:0;z-index:70;background:#03020bf2;display:none;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:20px}.cine.show{display:flex}.cine:before{content:"";position:absolute;width:min(85vw,600px);aspect-ratio:1;border:2px solid var(--cine-color,#bd8aff);border-radius:50%;box-shadow:0 0 45px var(--cine-color),inset 0 0 55px var(--cine-color);animation:portalSpin 8s linear infinite}.cine:after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--cine-color,#bd8aff) 0,transparent 65%);opacity:.18;animation:flashPulse .6s infinite alternate}.cine-content{position:relative;z-index:2}.cine-small{letter-spacing:6px;font-size:11px;color:#e4d3ff}.cine-glyph{font-size:clamp(120px,30vw,230px);font-weight:900;line-height:1.2;text-shadow:0 0 20px currentColor,0 0 70px currentColor;animation:cinematicGlyph 1.1s cubic-bezier(.16,.8,.2,1)}.cine-rarity{font-size:clamp(20px,5vw,34px);font-weight:900;letter-spacing:7px}.cine-name{font-size:14px;color:#eee;margin:10px}.cine-close{margin-top:22px}@keyframes flashPulse{to{opacity:.35}}@keyframes cinematicGlyph{0%{transform:scale(.08) rotate(-35deg);filter:blur(18px);opacity:0}65%{transform:scale(1.22);filter:blur(0);opacity:1}100%{transform:scale(1)}}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}.particle{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--pcolor,#fff);box-shadow:0 0 14px var(--pcolor,#fff);animation:particleFly var(--dur,1.2s) ease-out forwards}@keyframes particleFly{from{transform:translate(0,0) scale(1);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+@media(max-width:620px){.top{height:58px;padding:0 11px}.logo{font-size:18px}.player{font-size:11px;gap:9px}.nav{top:58px;gap:3px;padding:8px 2px}.nav button{padding:9px 11px;font-size:12px}main{padding:20px 10px 55px}.hero{padding:32px 10px 22px}.summon-stage{height:255px}.summon-kanji{font-size:105px}.roll-buttons{display:grid;grid-template-columns:1fr 1fr}.btn{padding:12px 8px;font-size:12px}.battlefield{min-height:190px;padding-inline:0}.fighter-aura{width:115px;height:115px}.fighter-glyph{font-size:58px}.quiz-options{grid-template-columns:1fr}.stats{gap:5px}.stat strong{font-size:18px}.panel{padding:13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<canvas id="scene"></canvas>
-<div id="loading">ALIEN LAB <small>3D LABORATORY を準備中...</small></div>
-<div id="top"><span class="dot"></span><div><div class="logo">ALIEN LAB</div><div class="sub">PHYSICS SANDBOX</div></div></div>
-<div class="panel left"><div class="panel-title">TOOLS / 道具</div>
-<button class="tool active" data-tool="grab"><span class="ico">✋</span>つかむ・動かす</button>
-<button class="tool" data-tool="pulse"><span class="ico">✦</span>エネルギーパルス</button>
-<button class="tool" data-tool="detach"><span class="ico">⟡</span>パーツ分離</button>
-<button class="tool" data-tool="scan"><span class="ico">⌖</span>スキャン</button>
-<button class="tool" data-tool="gravity"><span class="ico">◉</span>低重力切替</button>
-<div class="hint">エイリアンをクリックして道具を使用。<br>ドラッグでつかんで移動できます。</div></div>
-<div class="panel right"><div class="panel-title">SPECIMEN STATUS</div><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">SPECIMEN 01</b><span class="pill">STABLE</span></div>
-<div class="stat"><span>状態</span><b id="status">待機中</b></div><div class="stat"><span>接続パーツ</span><b id="parts">9 / 9</b></div><div class="stat"><span>重力</span><b id="grav">標準</b></div>
-<div class="actions"><button class="action" id="newAlien">再生成</button><button class="action primary" id="reset">リセット</button></div></div>
-<div id="bottom"><span><span class="key">左クリック</span> 道具を使う</span><span><span class="key">ドラッグ</span> 視点回転</span><span><span class="key">ホイール</span> ズーム</span></div>
-<div id="toast"></div><div id="crosshair"></div>
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
-import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
-const canvas=document.querySelector('#scene');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xeaf1f4);scene.fog=new THREE.Fog(0xeaf1f4,17,34);
-const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);camera.position.set(5.2,4.3,8.5);
-const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.35,0);controls.enableDamping=true;controls.minDistance=4;controls.maxDistance=15;controls.maxPolarAngle=Math.PI*.48;
-scene.add(new THREE.HemisphereLight(0xffffff,0xb4c6d0,2.1));const key=new THREE.DirectionalLight(0xffffff,3.1);key.position.set(4,8,5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-8;key.shadow.camera.right=8;key.shadow.camera.top=8;key.shadow.camera.bottom=-8;scene.add(key);
-for(const [x,z] of [[-5,-4],[5,-4],[-5,4],[5,4]]){const l=new THREE.PointLight(0x9deafa,22,10);l.position.set(x,3.7,z);scene.add(l)}
-const world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.82,0)});world.broadphase=new CANNON.SAPBroadphase(world);world.allowSleep=true;world.solver.iterations=12;world.defaultContactMaterial.friction=.55;world.defaultContactMaterial.restitution=.08;
-const mat=new CANNON.Material('specimen');const floorMat=new CANNON.Material('floor');world.addContactMaterial(new CANNON.ContactMaterial(mat,floorMat,{friction:.65,restitution:.05}));
-const meshes=[];let parts=[],joints=[],tool='grab',lowGravity=false,dragBody=null,dragPlane=new THREE.Plane(),dragPoint=new THREE.Vector3(),dragOffset=new THREE.Vector3();const raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2();
-function box(w,h,d,color,rough=.7,metal=0){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal}));m.castShadow=true;m.receiveShadow=true;return m}
-// Lab floor and clean modular walls
-const floor=box(18,.25,18,0xfafcfd);floor.position.y=-.16;scene.add(floor);const floorBody=new CANNON.Body({mass:0,material:floorMat,shape:new CANNON.Box(new CANNON.Vec3(9,.125,9)),position:new CANNON.Vec3(0,-.16,0)});world.addBody(floorBody);
-const grid=new THREE.GridHelper(18,36,0xc8d7df,0xdce6eb);grid.position.y=-.028;scene.add(grid);
-for(const [x,z,ry] of [[0,-8.9,0],[-8.9,0,Math.PI/2],[8.9,0,Math.PI/2]]){const wall=box(18,.12,3,0xffffff);wall.position.set(x,3.5,z);wall.rotation.y=ry;scene.add(wall)}
-// light panels and equipment
-for(let i=-1;i<=1;i++){const panel=box(2.5,.08,1.2,0xffffff,.25);panel.position.set(i*4,5.1,-1);scene.add(panel);const glow=new THREE.Mesh(new THREE.PlaneGeometry(2.3,1),new THREE.MeshBasicMaterial({color:0xffffff}));glow.rotation.x=Math.PI/2;glow.position.set(i*4,5.045,-1);scene.add(glow)}
-const table=box(3.5,.22,2.2,0xdce7eb,.32,.15);table.position.set(0,.85,0);scene.add(table);for(const x of [-1.45,1.45])for(const z of [-.82,.82]){const leg=box(.13,.85,.13,0xaabac3,.35,.45);leg.position.set(x,.35,z);scene.add(leg)}
-const console=box(1.25,.85,.55,0xd7e4e9,.35,.2);console.position.set(-3,.43,-2.4);scene.add(console);const screen=new THREE.Mesh(new THREE.PlaneGeometry(.92,.48),new THREE.MeshBasicMaterial({color:0x75d7e8}));screen.position.set(-3,.65,-2.115);scene.add(screen);
-function makePart(name,pos,r,scale,color,shape='sphere',mass=1){const body=new CANNON.Body({mass,material:mat,linearDamping:.35,angularDamping:.55,allowSleep:true,sleepSpeedLimit:.12,sleepTimeLimit:1});let sh;if(shape==='box')sh=new CANNON.Box(new CANNON.Vec3(r[0],r[1],r[2]));else sh=new CANNON.Sphere(r);body.addShape(sh);body.position.set(...pos);world.addBody(body);const geo=shape==='box'?new THREE.BoxGeometry(scale[0],scale[1],scale[2]):new THREE.SphereGeometry(1,32,24);const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color,roughness:.32,metalness:.08}));mesh.scale.set(...scale);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);const p={name,body,mesh,connected:true};parts.push(p);meshes.push(p);return p}
-function link(a,b,pa,pb){const c=new CANNON.PointToPointConstraint(a.body,b.body,new CANNON.Vec3(...pa),new CANNON.Vec3(...pb),1e6);world.addConstraint(c);joints.push({a,b,c})}
-function createAlien(){clearAlien();const skin=0x75b9a7,dark=0x244b4c,belly=0xa8d7c7;
-const torso=makePart('胴体',[0,2.0,0],[.34,.5,.25],[.78,1.12,.55],skin,'box',3);const head=makePart('頭',[0,2.92,0],.42,[.84,.82,.78],skin,'sphere',1.2);link(torso,head,[0,.55,0],[0,-.35,0]);
-const pelvis=makePart('腰',[0,1.25,0],[.3,.24,.23],[.62,.42,.48],belly,'box',1.8);link(torso,pelvis,[0,-.55,0],[0,.2,0]);
-const armL=makePart('左腕',[-.62,2.12,0],.2,[.27,.78,.27],skin,'sphere',.7);const armR=makePart('右腕',[.62,2.12,0],.2,[.27,.78,.27],skin,'sphere',.7);link(torso,armL,[-.38,.32,0],[0,.34,0]);link(torso,armR,[.38,.32,0],[0,.34,0]);
-const handL=makePart('左手',[-.65,1.65,0],.16,[.3,.3,.3],belly,'sphere',.35);const handR=makePart('右手',[.65,1.65,0],.16,[.3,.3,.3],belly,'sphere',.35);link(armL,handL,[0,-.36,0],[0,.12,0]);link(armR,handR,[0,-.36,0],[0,.12,0]);
-const legL=makePart('左脚',[-.22,.68,0],.22,[.32,.85,.34],skin,'sphere',1);const legR=makePart('右脚',[.22,.68,0],.22,[.32,.85,.34],skin,'sphere',1);link(pelvis,legL,[-.18,-.12,0],[0,.38,0]);link(pelvis,legR,[.18,-.12,0],[0,.38,0]);
-// Eyes and belly markings follow the head/torso without adding physical hitboxes
-for(const side of [-1,1]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.115,24,18),new THREE.MeshStandardMaterial({color:0x101d2a,roughness:.12,metalness:.25}));eye.position.set(side*.19,3.0,.335);eye.scale.set(1,1.35,.5);scene.add(eye);head.mesh.add(eye);eye.position.set(side*.23,.06,.39)}
-const bellyMesh=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),new THREE.MeshStandardMaterial({color:0xc8eee0,roughness:.45}));bellyMesh.scale.set(.24,.42,.035);bellyMesh.position.set(0,2.0,.29);torso.mesh.add(bellyMesh);
-for(const p of parts){p.body.velocity.set(0,0,0);p.body.angularVelocity.set(0,0,0)}updateStatus();toast('SPECIMEN 01 を配置しました')}
-function clearAlien(){for(const j of joints)world.removeConstraint(j.c);joints=[];for(const p of parts){world.removeBody(p.body);scene.remove(p.mesh)}parts=[];}
-function updateStatus(){document.querySelector('#parts').textContent=parts.filter(p=>p.connected).length+' / '+parts.length}
-function toast(t){const el=document.querySelector('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),1500)}
-function setTool(t){tool=t;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));document.querySelector('#status').textContent=({grab:'操作待機',pulse:'パルス選択中',detach:'分離モード',scan:'スキャン待機',gravity:'低重力モード'})[t]||'待機中'}
-document.querySelectorAll('.tool').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.tool;if(t==='gravity'){lowGravity=!lowGravity;world.gravity.set(0,lowGravity?-2.2:-9.82,0);document.querySelector('#grav').textContent=lowGravity?'低重力':'標準';toast(lowGravity?'低重力 ON':'標準重力に戻しました');setTool('grab')}else setTool(t)}));
-function getHit(e){const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(parts.map(p=>p.mesh),false);return hits.length?parts.find(p=>p.mesh===hits[0].object):null}
-function onDown(e){if(e.button!==0)return;const p=getHit(e);if(!p)return;if(tool==='pulse'){const dir=new THREE.Vector3();camera.getWorldDirection(dir);p.body.applyImpulse(new CANNON.Vec3(dir.x*5,dir.y*5+2,dir.z*5),p.body.position);document.querySelector('#status').textContent='反応を確認';toast('エネルギーパルスを発射');return}
-if(tool==='detach'){const related=joints.filter(j=>j.a===p||j.b===p);if(!related.length){toast('このパーツはすでに分離しています');return}for(const j of related){world.removeConstraint(j.c);joints.splice(joints.indexOf(j),1);const other=j.a===p?j.b:j.a;}p.connected=false;p.body.applyImpulse(new CANNON.Vec3((Math.random()-.5)*2,2,(Math.random()-.5)*2),p.body.position);updateStatus();toast(p.name+'を分離しました');return}
-if(tool==='scan'){document.querySelector('#status').textContent='スキャン完了';toast('SCAN：'+p.name+' / 物理反応 正常');return}
-if(tool==='grab'){dragBody=p.body;dragBody._oldType=dragBody.type;dragBody.type=CANNON.Body.KINEMATIC;dragBody.updateMassProperties();const hit=raycaster.intersectObject(p.mesh)[0];const normal=new THREE.Vector3();camera.getWorldDirection(normal);dragPlane.setFromNormalAndCoplanarPoint(normal,hit.point);dragOffset.copy(p.mesh.position).sub(hit.point);controls.enabled=false;renderer.domElement.setPointerCapture(e.pointerId)}}
-function onMove(e){if(!dragBody)return;const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;raycaster.setFromCamera(mouse,camera);const pt=new THREE.Vector3();if(raycaster.ray.intersectPlane(dragPlane,pt)){pt.add(dragOffset);dragBody.position.set(pt.x,pt.y,pt.z);dragBody.velocity.set(0,0,0);dragBody.angularVelocity.set(0,0,0)}}
-function onUp(){if(dragBody){dragBody.type=CANNON.Body.DYNAMIC;dragBody.updateMassProperties();dragBody.wakeUp();dragBody=null;controls.enabled=true}}
-renderer.domElement.addEventListener('pointerdown',onDown);renderer.domElement.addEventListener('pointermove',onMove);renderer.domElement.addEventListener('pointerup',onUp);renderer.domElement.addEventListener('pointercancel',onUp);
-document.querySelector('#reset').addEventListener('click',()=>{lowGravity=false;world.gravity.set(0,-9.82,0);document.querySelector('#grav').textContent='標準';setTool('grab');createAlien()});document.querySelector('#newAlien').addEventListener('click',()=>{createAlien();setTool('grab')});
-createAlien();
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.033);world.step(1/60,dt,3);for(const p of parts){p.mesh.position.copy(p.body.position);p.mesh.quaternion.copy(p.body.quaternion)}controls.update();renderer.render(scene,camera)}animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
-document.querySelector('#loading').style.display='none';
+<header class="top"><div class="logo">漢魂 <span>RNG</span></div><div class="player"><span class="level">LV <b id="level">1</b></span><span class="currency">💎 <b id="gems">1000</b></span></div></header>
+<section class="hero"><small>THE WORLD OF KANJI · OVERDRIVE</small><h1>漢字を集め、<br><span>頂点へ。</span></h1><p>KNOWLEDGE IS POWER. AWAKEN YOUR SOUL.</p><div class="xp-area"><div class="xp-label"><span>EXPERIENCE</span><span id="xpText">0 / 100 XP</span></div><div class="xp-track"><div class="xp-fill" id="xpFill"></div></div></div></section>
+<nav class="nav"><button class="active" data-page="summon">召喚</button><button data-page="collection">図鑑</button><button data-page="study">学習AI</button><button data-page="battle">バトル</button></nav>
+<main>
+<section class="page active" id="summon"><div class="heading"><h2>漢字召喚</h2><p>運命を超えろ。最高レアをその手に。</p></div><div class="panel summon-panel">
+<div class="summon-stage" id="summonStage"><div class="stage-flash" id="stageFlash"></div><div class="portal-rune">漢</div><div class="summon-kicker" id="summonKicker">ANCIENT SUMMONING GATE</div><div class="summon-kanji" id="summonKanji">漢</div><div class="summon-caption" id="summonCaption">AWAKEN YOUR POWER</div></div>
+<div class="roll-buttons"><button class="btn" id="roll1">運命の1回召喚<small>100 💎</small></button><button class="btn alt" id="roll10">超越の10連召喚<small>900 💎</small></button></div><p class="notice">高レアほど専用演出が変化。10連は100ジェムお得！</p>
+<div class="result-area" id="resultArea"><div class="result-title">SUMMON RESULT</div><p style="color:#80778f;font-size:12px">召喚ゲートに触れ、運命を解放しよう。</p></div></div></section>
+
+<section class="page" id="collection"><div class="heading"><h2>漢字図鑑</h2><p id="collectionCount">0 / 24 発見</p></div><div class="stats"><div class="stat"><strong id="totalOwned">0</strong><small>獲得総数</small></div><div class="stat"><strong id="uniqueOwned">0</strong><small>発見種類</small></div><div class="stat"><strong id="collectionRate">0%</strong><small>収集率</small></div></div><div class="filter" id="filters"><button class="active" data-filter="all">すべて</button><button data-filter="owned">獲得済み</button><button data-filter="locked">未発見</button></div><div class="grid" id="collectionGrid"></div></section>
+
+<section class="page" id="study"><div class="heading"><h2>適応型・漢字学習AI</h2><p>正答率・苦手分野・連続正解から次の問題を調整するローカル学習エンジン。</p></div><div class="panel quiz">
+<div class="quiz-tools"><label>学習範囲 <select id="gradeSelect"><option value="all">全学年</option><option value="elementary">小学生</option><option value="middle">中学生</option><option value="high">高校生</option></select></label><label>問題タイプ <select id="typeSelect"><option value="adaptive">AIおまかせ</option><option value="reading">読み方</option><option value="meaning">意味</option><option value="opposite">対義語</option><option value="synonym">類義語</option><option value="compound">熟語</option><option value="radical">部首</option><option value="送り仮名">送り仮名</option></select></label></div>
+<div class="quiz-label">ADAPTIVE KANJI TRAINING</div><div class="quiz-kanji" id="quizKanji">憂鬱</div><p class="quiz-question" id="quizQuestion">問題を準備中...</p><div class="quiz-options" id="quizOptions"></div><div class="feedback" id="quizFeedback" aria-live="polite"></div><button class="btn" id="nextQuestion">次の問題へ</button>
+<div class="quiz-progress"><div style="display:flex;justify-content:space-between;font-size:10px;color:#b7a9c8"><span>学習レベル</span><span id="aiLevel">AI LEVEL 1 · BEGINNER</span></div><div class="bar"><div id="aiProgress"></div></div></div><p class="ai-note" id="aiNote">回答データをもとに難易度を調整します。外部AI通信なしで動く学習ロジックです。</p></div></section>
+
+<section class="page" id="battle"><div class="heading"><h2>漢魂バトルアリーナ</h2><p>属性・スキル・ガード・回避・必殺技を駆使して勝利せよ。</p></div><div class="stats"><div class="stat"><strong id="wins">0</strong><small>勝利数</small></div><div class="stat"><strong id="battlePower">10</strong><small>選択漢字 POW</small></div><div class="stat"><strong id="streak">0</strong><small>連勝</small></div></div>
+<div class="battle-arena" id="battleArena"><div class="arena-top"><span>⚔ KANJI DUEL</span><span class="boss-tag" id="enemyRank">FIELD ENEMY</span></div>
+<div class="battlefield">
+<div class="combatant player" id="playerCombatant"><div class="fighter-aura power-Common" id="playerAura"><div class="fighter-glyph" id="playerGlyph">漢</div></div><div class="combat-name" id="playerName">見習い召喚士</div><div class="hp-info" id="playerHpText">HP 120 / 120</div><div class="hpbar"><div id="playerHpBar" style="width:100%"></div></div></div>
+<div class="combatant enemy" id="enemyCombatant"><div class="fighter-aura" id="enemyAura"><div class="fighter-glyph" id="enemyGlyph">👹</div></div><div class="combat-name" id="enemyName">迷い鬼</div><div class="hp-info" id="enemyHpText">HP 100 / 100</div><div class="hpbar"><div id="enemyHpBar" style="width:100%"></div></div></div>
+</div>
+<div class="enemy-intent" id="enemyIntent">敵の行動：様子をうかがっている</div>
+<div class="gauge-wrap"><div style="display:flex;justify-content:space-between"><span>必殺技ゲージ</span><b id="ultText">0 / 100</b></div><div class="gauge"><div id="ultBar"></div></div></div>
+<div class="battle-controls"><button class="btn" id="attackButton">⚔ 通常攻撃</button><button class="btn skill-btn" id="skillButton">✦ 固有スキル</button><button class="btn ultimate-btn" id="ultimateButton" disabled>★ 必殺技</button><button class="btn guard-btn" id="guardButton">🛡 ガード</button><button class="btn alt" id="dodgeButton">➤ 回避</button></div>
+<div class="battle-log" id="battleLog">漢字を召喚して、バトルを開始しよう。</div>
+<div class="battle-bottom"><label style="font-size:12px;color:#c6b8d7" for="battleKanji">装備する漢字：</label><select id="battleKanji"></select><button class="btn alt" id="newEnemyButton">次の敵・再戦</button></div></div></section>
+</main>
+<footer>KAN魂 RNG: OVERDRIVE · LEARN · SUMMON · DOMINATE</footer>
+<div class="toast" id="toast"></div><div class="particles" id="particles"></div>
+<div class="cine" id="cine"><div class="cine-content"><div class="cine-small">NEW SOUL AWAKENED</div><div class="cine-glyph" id="cineGlyph">龍</div><div class="cine-rarity" id="cineRarity">LEGENDARY</div><div class="cine-name" id="cineName">龍 · POWER 45</div><button class="btn cine-close" id="cineClose">演出を閉じる</button></div></div>
+
+<script>
+"use strict";
+const KANJI=[
+{id:"木",name:"木",reading:"き",meaning:"木",rarity:"Common",weight:20,power:9,element:"自然"},
+{id:"水",name:"水",reading:"みず",meaning:"水",rarity:"Common",weight:18,power:10,element:"水"},
+{id:"火",name:"火",reading:"ひ",meaning:"火",rarity:"Common",weight:17,power:11,element:"炎"},
+{id:"山",name:"山",reading:"やま",meaning:"山",rarity:"Common",weight:15,power:10,element:"大地"},
+{id:"石",name:"石",reading:"いし",meaning:"石",rarity:"Common",weight:14,power:11,element:"大地"},
+{id:"月",name:"月",reading:"つき",meaning:"月",rarity:"Uncommon",weight:11,power:16,element:"月"},
+{id:"空",name:"空",reading:"そら",meaning:"空",rarity:"Uncommon",weight:10,power:17,element:"風"},
+{id:"風",name:"風",reading:"かぜ",meaning:"風",rarity:"Uncommon",weight:9,power:18,element:"風"},
+{id:"花",name:"花",reading:"はな",meaning:"花",rarity:"Uncommon",weight:8,power:17,element:"自然"},
+{id:"星",name:"星",reading:"ほし",meaning:"星",rarity:"Rare",weight:6,power:27,element:"星"},
+{id:"光",name:"光",reading:"ひかり",meaning:"光",rarity:"Rare",weight:5.5,power:29,element:"光"},
+{id:"氷",name:"氷",reading:"こおり",meaning:"氷",rarity:"Rare",weight:5,power:30,element:"氷"},
+{id:"影",name:"影",reading:"かげ",meaning:"影",rarity:"Epic",weight:3.5,power:43,element:"闇"},
+{id:"炎",name:"炎",reading:"ほのお",meaning:"燃え上がる火",rarity:"Epic",weight:3,power:46,element:"炎"},
+{id:"龍",name:"龍",reading:"りゅう",meaning:"伝説の生き物",rarity:"Epic",weight:2.7,power:49,element:"龍"},
+{id:"雷",name:"雷",reading:"かみなり",meaning:"雷",rarity:"Legendary",weight:1.5,power:68,element:"雷"},
+{id:"嵐",name:"嵐",reading:"あらし",meaning:"激しい風雨",rarity:"Legendary",weight:1.2,power:73,element:"風"},
+{id:"刃",name:"刃",reading:"やいば",meaning:"刀の鋭い部分",rarity:"Legendary",weight:1,power:78,element:"鋼"},
+{id:"神",name:"神",reading:"かみ",meaning:"神",rarity:"Mythic",weight:.55,power:105,element:"神聖"},
+{id:"滅",name:"滅",reading:"めつ",meaning:"ほろびること",rarity:"Mythic",weight:.4,power:115,element:"闇"},
+{id:"覇",name:"覇",reading:"は",meaning:"圧倒的な力",rarity:"Divine",weight:.16,power:155,element:"覇気"},
+{id:"零",name:"零",reading:"れい",meaning:"ゼロ",rarity:"Divine",weight:.12,power:175,element:"虚無"},
+{id:"極",name:"極",reading:"きょく",meaning:"この上ないこと",rarity:"Secret",weight:.025,power:260,element:"極"},
+{id:"夢",name:"夢",reading:"ゆめ",meaning:"将来こうなりたいと思うこと",rarity:"Secret",weight:.012,power:310,element:"夢"}
+];
+const RJA={Common:"COMMON",Uncommon:"UNCOMMON",Rare:"RARE",Epic:"EPIC",Legendary:"LEGENDARY",Mythic:"MYTHIC",Divine:"DIVINE",Secret:"SECRET"};
+const RANK={Common:1,Uncommon:2,Rare:3,Epic:4,Legendary:5,Mythic:6,Divine:7,Secret:8};
+const BANK=[
+["山","やま","高く盛り上がった土地","川","海","空","小学校","reading"],["川","かわ","水が流れる地形","山","森","石","雲","reading"],["森","もり","木がたくさん集まった場所","海","町","空","花","meaning"],
+["湖","みずうみ","陸地に囲まれた大きな水域","池","川","海","滝","reading"],["勇気","ゆうき","困難に立ち向かう心","弱気","元気","人気","本気","reading"],
+["努力","どりょく","目標のために力を尽くすこと","怠ける","協力","成功","失敗","meaning"],["温暖","おんだん","気候があたたかいこと","寒冷","冷静","快晴","乾燥","reading"],
+["複雑","ふくざつ","入り組んでいて簡単でないこと","単純","簡単","明快","明確","meaning"],["永遠","えいえん","いつまでも続くこと","一瞬","永久","未来","過去","reading"],
+["承知","しょうち","事情を知って理解すること","無知","納得","確認","相談","reading"],["著しい","いちじるしい","はっきり目立つほど大きいこと","わずか","明るい","正しい","珍しい","reading"],
+["憂鬱","ゆううつ","気分が晴れないこと","陽気","元気","快活","安心","reading"],["雰囲気","ふんいき","その場の空気や感じ","様子","景色","気配","気分","reading"],
+["概ね","おおむね","だいたい・およそ","詳細","全部","突然","必ず","reading"],["促す","うながす","物事を進めるよう働きかける","止める","断る","遅らせる","隠す","reading"],
+["誠実","せいじつ","まじめで真心があること","不誠実","冷静","慎重","自由","reading"],["紅葉","こうよう","葉が赤や黄色に色づくこと","新緑","落葉","開花","結実","reading"],
+["簡潔","かんけつ","短くまとまっていること","冗長","複雑","丁寧","詳細","meaning"],["冷静","れいせい","落ち着いて判断すること","興奮","平和","慎重","温厚","reading"],
+["拡大","縮小","広く大きくすること","拡張","増加","発展","拡幅","opposite"],["開始","終了","物事を始めること","継続","中断","再開","着手","opposite"],
+["賛成","反対","意見に同意すること","協力","納得","支持","賛同","opposite"],["原因","結果","ある結果を引き起こしたもと","理由","動機","目的","きっかけ","opposite"],
+["安全","危険","危険がないこと","安心","平和","確実","無事","opposite"],["豊富","乏しい","たくさんあること","十分","大量","多数","豊か","opposite"],
+["永久","恒久","いつまでも続くこと","一時","永遠","持続","一過性","synonym"],["迅速","素早い","物事の進み方が非常に速いこと","慎重","確実","丁寧","ゆっくり","synonym"],
+["冷淡","冷酷","思いやりがなく冷たいこと","親切","温厚","熱心","思いやり","synonym"],["山紫水明","山や川の景色が美しいこと","山や川の景色が美しいこと","一つの行動で二つの利益を得ること","自分の行いの結果を自分で受けること","昔を学んで新しい知識を得ること","状況に応じて対応すること","compound"],
+["一石二鳥","一つの行動で二つの利益を得ること","一つの行動で二つの利益を得ること","人それぞれ考えや好みが違うこと","強い者が弱い者を支配すること","言葉にしなくても気持ちが通じること","昔を学んで新しい知識を得ること","compound"],["温故知新","昔のことを学び新しい知識を得ること","昔のことを学び新しい知識を得ること","急がば回れ","百発百中","切磋琢磨","一つの行動で二つの利益を得ること","compound"],
+["以心伝心","言葉にしなくても気持ちが通じること","言葉にしなくても気持ちが通じること","一つの行動で二つの利益を得ること","昔のことを学び新しい知識を得ること","非常に速いこと","状況に応じて対応すること","compound"],["臨機応変","状況に応じて適切に対応すること","状況に応じて適切に対応すること","自分で自分をほめること","決断できず迷うこと","今までに例がないこと","一つの行動で二つの利益を得ること","compound"],
+["「海」の部首は？","さんずい","水に関係する漢字に多い部首","にんべん","くさかんむり","ごんべん","radical"],["「語」の部首は？","ごんべん","言葉に関係する漢字に多い部首","さんずい","てへん","りっしんべん","radical"],
+["「休む」の送り仮名として正しいものは？","休む","人が体を休める","休むる","休みる","休める","送り仮名"],["「明るい」の反対の意味は？","暗い","明快","明朗","光る","opposite"]
+];
+const EXTRA=[
+{q:"「あたたかい」を表す漢字は？",a:"暖かい",opts:["暖かい","温かい","熱かい","暑かい"],type:"送り仮名",grade:"elementary",level:1,ex:"気候などには「暖かい」、物や気持ちには「温かい」を使うことが多いよ。"},
+{q:"「以心伝心」の意味は？",a:"言葉にしなくても気持ちが通じる",opts:["言葉にしなくても気持ちが通じる","一つで二つの利益を得る","昔から学び新しく知る","心を落ち着かせる"],type:"compound",grade:"middle",level:3,ex:"以心伝心は、心から心へ気持ちが伝わること。"},
+{q:"「永」の部首は？",a:"水",opts:["水","さんずい","しんにょう","日"],type:"radical",grade:"middle",level:3,ex:"永の部首は水（みず）だよ。"},
+{q:"「快活」と近い意味の言葉は？",a:"活発",opts:["活発","消極","静寂","慎重"],type:"synonym",grade:"middle",level:3,ex:"快活は明るく元気な様子。活発と近い意味だよ。"},
+{q:"「危機」の読み方は？",a:"きき",opts:["きき","きご","あぶき","きけ"],type:"reading",grade:"elementary",level:2,ex:"危機（きき）は、危険な状態や重大な局面。"},
+{q:"「簡単」の反対の意味は？",a:"複雑",opts:["複雑","単純","容易","明快"],type:"opposite",grade:"elementary",level:2,ex:"簡単の反対は複雑。"},
+{q:"「水」が部首になるときの形は？",a:"氵",opts:["氵","扌","亻","艹"],type:"radical",grade:"elementary",level:2,ex:"水が左側につくと「さんずい」になるよ。"},
+{q:"「あらわす」と読む漢字はどれ？",a:"表す",opts:["表す","現す","著す","全て同じ"],type:"meaning",grade:"middle",level:4,ex:"表すは考えや気持ちを示す。現す・著すとは使い分けるよ。"}
+];
+const QUESTIONS=BANK.map((r,i)=>({kanji:r[0],answer:r[1],meaning:r[2],distractors:r.slice(3,7),type:r[7],grade:i<8?"elementary":i<27?"middle":"high",level:i<8?1:i<18?2:i<27?3:4})).concat(EXTRA);
+const fresh=()=>({gems:1000,level:1,xp:0,inventory:{},totalSummons:0,wins:0,streak:0,quizIndex:0,quizStats:{},correct:0,answered:0,enemyHp:100,enemyMax:100,playerHp:120,playerMax:120,ult:0,guarding:false,evade:false,battleEnded:false,enemyTurn:0});
+let state=fresh(),filter="all",quizLocked=false,currentQuestion=null,toastTimer=null,turnBusy=false;
+const $=id=>document.getElementById(id);
+const RARITIES=Object.keys(RANK);
+function save(){try{localStorage.setItem("kanSoulOverdriveV2",JSON.stringify(state));}catch(e){}}
+function load(){try{const raw=localStorage.getItem("kanSoulOverdriveV2")||localStorage.getItem("kanSoulRngSaveV1");const d=JSON.parse(raw||"null");if(d)state={...fresh(),...d,quizStats:d.quizStats||{},streak:d.streak||0,ult:d.ult||0};}catch(e){state=fresh();}}
+function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200)}
+function xp(n){state.xp+=n;while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;state.gems+=100;toast("LEVEL UP! +100 💎");}}
+function update(){
+ $("level").textContent=state.level;$("gems").textContent=state.gems.toLocaleString();const need=state.level*100;$("xpText").textContent=`${state.xp} / ${need} XP`;$("xpFill").style.width=state.xp/need*100+"%";
+ const vals=Object.values(state.inventory),unique=Object.keys(state.inventory).length,total=vals.reduce((a,b)=>a+b,0);
+ $("totalOwned").textContent=total;$("uniqueOwned").textContent=unique;$("collectionCount").textContent=`${unique} / ${KANJI.length} 発見`;$("collectionRate").textContent=Math.floor(unique/KANJI.length*100)+"%";
+ $("wins").textContent=state.wins;$("streak").textContent=state.streak;
+ const equipped=selectedKanji();$("battlePower").textContent=equipped?equipped.power:10;
+ $("ultText").textContent=`${state.ult} / 100`;$("ultBar").style.width=state.ult+"%";$("ultimateButton").disabled=state.ult<100||state.battleEnded;
+ updateSelect();save();
+}
+function selectedKanji(){return KANJI.find(k=>k.id===$("battleKanji")?.value)||KANJI.filter(k=>state.inventory[k.id]).sort((a,b)=>b.power-a.power)[0]||null}
+function weighted(){let total=KANJI.reduce((s,k)=>s+k.weight,0),r=Math.random()*total;for(const k of KANJI){r-=k.weight;if(r<=0)return k;}return KANJI[0]}
+function rarityColor(r){return ({Common:"#c0c0cb",Uncommon:"#72e6a4",Rare:"#73c3ff",Epic:"#c28aff",Legendary:"#ffda75",Mythic:"#ff9164",Divine:"#fff0a2",Secret:"#ff79e4"})[r]||"#fff"}
+function particleBurst(color,count=38){const root=$("particles");for(let i=0;i<count;i++){const p=document.createElement("i");p.className="particle";p.style.left=(Math.random()*100)+"%";p.style.top=(25+Math.random()*55)+"%";p.style.setProperty("--pcolor",color);p.style.setProperty("--dx",(Math.random()*500-250)+"px");p.style.setProperty("--dy",(Math.random()*-550-30)+"px");p.style.setProperty("--dur",(.65+Math.random()*1.1)+"s");root.appendChild(p);setTimeout(()=>p.remove(),1900);}}
+function sound(kind){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),now=c.currentTime;const notes=kind==="rare"?[220,330,440,660,880]:kind==="hit"?[120,75]:[180,260,390];notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type=kind==="rare"?"sine":"triangle";o.frequency.setValueAtTime(f,now+i*.075);g.gain.setValueAtTime(.0001,now+i*.075);g.gain.exponentialRampToValueAtTime(kind==="rare"?.12:.055,now+i*.075+.02);g.gain.exponentialRampToValueAtTime(.0001,now+i*.075+.24);o.connect(g);g.connect(c.destination);o.start(now+i*.075);o.stop(now+i*.075+.26);});setTimeout(()=>c.close(),1800);}catch(e){}}
+function card(k,i=0){return `<div class="kanji-card rarity-${k.rarity}" style="animation-delay:${i*.045}s"><div class="symbol ${k.rarity}">${k.id}</div><div class="kname">${k.name}</div><div class="krarity ${k.rarity}">${RJA[k.rarity]}</div><div class="kmeta">×${state.inventory[k.id]||0} · POW ${k.power}</div></div>`}
+function cinematic(k){$("cine").style.setProperty("--cine-color",rarityColor(k.rarity));$("cineGlyph").textContent=k.id;$("cineGlyph").style.color=rarityColor(k.rarity);$("cineRarity").textContent=RJA[k.rarity];$("cineRarity").style.color=rarityColor(k.rarity);$("cineName").textContent=`${k.name} · ${k.element} · POWER ${k.power}`;$("cine").classList.add("show");particleBurst(rarityColor(k.rarity),k.rarity==="Secret"?100: k.rarity==="Divine"?75:50);sound("rare");}
+function summon(n){
+ const cost=n===10?900:100;if(state.gems<cost){toast("ジェムが足りない！");return;}
+ $("roll1").disabled=$("roll10").disabled=true;state.gems-=cost;
+ const stage=$("summonStage");stage.className="summon-stage charging";$("summonKicker").textContent="GATE ACTIVATION";$("summonCaption").textContent="ENERGY CHARGING...";
+ $("summonKanji").textContent="解";sound("charge");
+ setTimeout(()=>{
+  const pulled=[];for(let i=0;i<n;i++){const k=weighted();pulled.push(k);state.inventory[k.id]=(state.inventory[k.id]||0)+1;state.totalSummons++;}
+  xp(n*5);const best=pulled.slice().sort((a,b)=>RANK[b.rarity]-RANK[a.rarity])[0];
+  stage.className="summon-stage reveal rarity-"+best.rarity;$("summonKanji").textContent=best.id;$("summonKanji").style.color=rarityColor(best.rarity);$("summonKicker").textContent=best.rarity==="Secret"?"THE IMPOSSIBLE HAS APPEARED":best.rarity==="Divine"?"DIVINE DESCENT":best.rarity==="Mythic"?"MYTHIC AWAKENING":"SOUL RELEASED";$("summonCaption").textContent=best.element+" · "+RJA[best.rarity];
+  $("resultArea").innerHTML=`<div class="result-title">SUMMON RESULT · ${n} PULL</div><div class="results-grid">${pulled.map(card).join("")}</div>`;
+  particleBurst(rarityColor(best.rarity),RANK[best.rarity]>=6?100:45);sound("rare");
+  update();renderCollection();$("roll1").disabled=$("roll10").disabled=false;
+  if(RANK[best.rarity]>=4)cinematic(best);else toast(`${n}回召喚完了！最高レア：${RJA[best.rarity]}`);
+ },950);
+}
+function renderCollection(){const list=KANJI.filter(k=>filter==="all"||(filter==="owned"&&(state.inventory[k.id]||0)>0)||(filter==="locked"&&!(state.inventory[k.id]||0)));$("collectionGrid").innerHTML=list.map(k=>{const n=state.inventory[k.id]||0;return `<div class="collection-card rarity-${k.rarity} ${n?"":"locked"}">${n?`<div class="symbol ${k.rarity}">${k.id}</div><b>${k.name}</b><div class="krarity ${k.rarity}">${RJA[k.rarity]}</div><div class="owned">${k.reading} · ${k.element}<br>所持 ${n} · POW ${k.power}</div>`:`<div class="lock">?</div><b>未発見</b><div class="owned">？？？</div>`}</div>`}).join("")}
+function page(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="collection")renderCollection();if(id==="battle")updateSelect();if(id==="study")nextQuestion()}
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+function gradeAllowed(q,g){return g==="all"||q.grade===g}
+function makeQuestions(){
+ const list=QUESTIONS.map((q,i)=>({...q,id:i}));
+ return list;
+}
+function adaptDifficulty(){
+ const s=state.quizStats;const entries=Object.values(s);const total=entries.reduce((a,x)=>a+x.seen,0),correct=entries.reduce((a,x)=>a+x.correct,0);
+ const acc=total?correct/total:.55;return Math.max(1,Math.min(5,Math.round(state.level*.45+acc*2+(state.streak||0)*.08)));
+}
+function nextQuestion(){
+ quizLocked=false;const grade=$("gradeSelect").value,type=$("typeSelect").value,level=adaptDifficulty();
+ let candidates=makeQuestions().filter(q=>gradeAllowed(q,grade)&&(type==="adaptive"||q.type===type));
+ if(!candidates.length)candidates=makeQuestions().filter(q=>gradeAllowed(q,grade));
+ const weak=Object.entries(state.quizStats).sort((a,b)=>(a[1].correct/Math.max(1,a[1].seen))-(b[1].correct/Math.max(1,b[1].seen))).map(x=>x[0]);
+ candidates.sort((a,b)=>Math.abs(a.level-level)-Math.abs(b.level-level));
+ const preferred=candidates.filter(q=>weak.includes(q.type));const pool=preferred.length&&Math.random()<.65?preferred:candidates;
+ currentQuestion=pool[Math.floor(Math.random()*Math.min(pool.length,Math.max(4,Math.ceil(pool.length*.7))))];
+ const q=currentQuestion;let question=q.kanji,correct=q.answer,options=[correct,...q.distractors];
+ if(q.type==="meaning"){question=q.kanji;correct=q.meaning;options=[correct,...q.distractors];$("quizQuestion").textContent="この漢字・熟語の意味として最も近いものは？";}
+ else if(q.type==="reading"){$("quizQuestion").textContent="正しい読み方を選んでください。";}
+ else if(q.type==="opposite"){$("quizQuestion").textContent="反対の意味を持つ言葉を選んでください。";}
+ else if(q.type==="synonym"){$("quizQuestion").textContent="最も近い意味の言葉を選んでください。";}
+ else if(q.type==="compound"){$("quizQuestion").textContent="四字熟語の意味・関係が正しいものを選んでください。";}
+ else if(q.type==="radical"){$("quizQuestion").textContent=q.kanji;}
+ else if(q.type==="送り仮名"){$("quizQuestion").textContent=q.kanji;}
+ else $("quizQuestion").textContent="正しい答えを選んでください。";
+ if(q.type==="reading"||q.type==="opposite"||q.type==="synonym"||q.type==="compound"||q.type==="radical"||q.type==="送り仮名")question=q.kanji;
+ $("quizKanji").textContent=question;
+ options=shuffle(options).slice(0,4);$("quizOptions").innerHTML=options.map((o,i)=>`<button class="quiz-option" data-choice="${encodeURIComponent(o)}">${o}</button>`).join("");
+ $("quizOptions").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>answer(decodeURIComponent(b.dataset.choice),correct,q)));
+ $("quizFeedback").textContent="";$("aiLevel").textContent=`AI LEVEL ${level} · ${level<2?"BEGINNER":level<4?"INTERMEDIATE":"ADVANCED"}`;$("aiProgress").style.width=(level/5*100)+"%";
+ $("aiNote").textContent=`適応レベル ${level}/5 · 分野「${q.type}」 · 苦手分野と正答率を参考に選出`;
+}
+function answer(choice,correct,q){
+ if(quizLocked)return;quizLocked=true;state.answered++;const stat=state.quizStats[q.type]||(state.quizStats[q.type]={seen:0,correct:0});stat.seen++;
+ const buttons=[...$("quizOptions").querySelectorAll("button")];buttons.forEach(b=>{b.disabled=true;const v=decodeURIComponent(b.dataset.choice);if(v===correct)b.classList.add("correct");else if(v===choice)b.classList.add("wrong");});
+ if(choice===correct){stat.correct++;state.correct++;state.streak=(state.streak||0)+1;state.gems+=20;xp(25+adaptDifficulty()*4);$("quizFeedback").textContent="PERFECT! 正解！ +XP / +20 💎  "+q.ex; $("quizFeedback").style.color="#79e6ac";sound("rare");}
+ else{state.streak=0;$("quizFeedback").textContent="惜しい！ 正解は「"+correct+"」。"+q.ex;$("quizFeedback").style.color="#ff9aa9";sound("hit");}
+ update();
+}
+function updateSelect(){const s=$("battleKanji");if(!s)return;const old=s.value;const owned=KANJI.filter(k=>(state.inventory[k.id]||0)>0).sort((a,b)=>b.power-a.power);s.innerHTML=owned.length?owned.map(k=>`<option value="${k.id}">${k.id} · ${k.element} · POW ${k.power}</option>`).join(""):'<option value="">漢字を召喚してね</option>';if(owned.some(k=>k.id===old))s.value=old;renderPlayerAura();}
+function renderPlayerAura(){const k=selectedKanji();$("playerGlyph").textContent=k?k.id:"漢";$("playerName").textContent=k?`${k.name}の使い手 · ${k.element}`:"見習い召喚士";$("playerAura").className="fighter-aura power-"+(k?k.rarity:"Common");}
+const ENEMIES=[{name:"迷い鬼",glyph:"👹",hp:115,atk:12,rank:"FIELD ENEMY"},{name:"炎獄の番人",glyph:"🔥",hp:180,atk:17,rank:"ELITE"},{name:"深淵の龍",glyph:"🐉",hp:260,atk:22,rank:"BOSS"},{name:"虚空の覇者",glyph:"👾",hp:360,atk:28,rank:"RAID BOSS"}];
+let enemyIndex=0,enemyIntent="attack",cooldown=0;
+function newEnemy(){enemyIndex=state.wins%ENEMIES.length;const e=ENEMIES[enemyIndex];state.enemyMax=e.hp;state.enemyHp=e.hp;state.playerMax=120+(state.level-1)*8;state.playerHp=state.playerMax;state.ult=0;state.battleEnded=false;state.guarding=false;state.evade=false;state.enemyTurn=0;cooldown=0;$("enemyGlyph").textContent=e.glyph;$("enemyName").textContent=e.name;$("enemyRank").textContent=e.rank;planEnemy();renderBattle();log(`${e.name}が出現！ 敵の行動を見極めて戦おう。`);update();}
+function planEnemy(){const plans=["attack","heavy","charge"];enemyIntent=plans[Math.floor(Math.random()*plans.length)];$("enemyIntent").textContent=enemyIntent==="attack"?"敵の予告：通常攻撃！":enemyIntent==="heavy"?"敵の予告：強攻撃を準備中！":"敵の予告：力をためている…";}
+function log(t){$("battleLog").textContent=t}
+function renderBattle(){$("playerHpText").textContent=`HP ${state.playerHp} / ${state.playerMax}`;$("enemyHpText").textContent=`HP ${state.enemyHp} / ${state.enemyMax}`;$("playerHpBar").style.width=Math.max(0,state.playerHp/state.playerMax*100)+"%";$("enemyHpBar").style.width=Math.max(0,state.enemyHp/state.enemyMax*100)+"%";$("ultText").textContent=`${state.ult} / 100`;$("ultBar").style.width=state.ult+"%";$("ultimateButton").disabled=state.ult<100||state.battleEnded;}
+function animate(who,cls,big=false){const node=$(who);node.classList.remove(cls);void node.offsetWidth;node.classList.add(cls);setTimeout(()=>node.classList.remove(cls),850);if(big){$("battleArena").classList.remove("big-shake");void $("battleArena").offsetWidth;$("battleArena").classList.add("big-shake");setTimeout(()=>$("battleArena").classList.remove("big-shake"),700);}}
+function endWin(){state.battleEnded=true;state.wins++;state.streak=Math.max(state.streak,0);state.gems+=75;xp(60);state.ult=100;renderBattle();log("VICTORY!! 敵を撃破！ +75 💎 / +60 XP。次の敵はさらに強い！");particleBurst("#ffd878",65);sound("rare");update();}
+function enemyAct(){
+ if(state.battleEnded)return;const e=ENEMIES[enemyIndex];let damage=e.atk+Math.floor(Math.random()*8);
+ if(enemyIntent==="heavy")damage=Math.floor(damage*1.8);
+ if(enemyIntent==="charge"){damage=Math.floor(damage*.65);state.enemyIntent="charge";}
+ if(state.evade){state.evade=false;log("回避成功！敵の攻撃をかわした！");state.ult=Math.min(100,state.ult+15);planEnemy();renderBattle();return;}
+ if(state.guarding){damage=Math.max(1,Math.floor(damage*.35));state.guarding=false;}
+ state.playerHp=Math.max(0,state.playerHp-damage);animate("playerCombatant","hit");animate("battleArena","shake");sound("hit");
+ if(state.playerHp<=0){state.battleEnded=true;state.streak=0;log(`敵の攻撃！ ${damage}ダメージ。敗北…「次の敵・再戦」で再挑戦しよう。`);}
+ else{log(`敵の攻撃！ ${damage}ダメージを受けた。次の行動を選ぼう。`);planEnemy();}
+ renderBattle();update();
+}
+function playerAction(kind){
+ if(turnBusy||state.battleEnded){if(state.battleEnded)toast("「次の敵・再戦」を押そう");return;}const k=selectedKanji();if(!k){toast("先に漢字を召喚してね");return;}
+ turnBusy=true;let damage=0,msg="",isUltimate=false;
+ if(kind==="attack"){damage=k.power*.8+Math.floor(Math.random()*10);msg=`${k.id}の通常攻撃！ ${Math.floor(damage)}ダメージ！`;state.ult=Math.min(100,state.ult+18);}
+ if(kind==="skill"){if(cooldown>0){toast(`スキルはあと${cooldown}ターン`);turnBusy=false;return;}damage=k.power*1.65+Math.floor(Math.random()*15);msg=`${k.element}属性スキル「${k.id}の閃撃」！ ${Math.floor(damage)}ダメージ！`;cooldown=2;state.ult=Math.min(100,state.ult+28);isUltimate=true;}
+ if(kind==="ultimate"){if(state.ult<100){turnBusy=false;return;}damage=k.power*3.2+Math.floor(Math.random()*35);msg=`${k.id}・極奥義発動！！！ ${Math.floor(damage)}ダメージ！！`;state.ult=0;isUltimate=true;}
+ if(kind==="guard"){state.guarding=true;state.ult=Math.min(100,state.ult+12);msg="防御態勢！次の敵の攻撃を大幅に軽減する。";$("enemyIntent").textContent="敵の行動を待っている…";}
+ if(kind==="dodge"){state.evade=true;state.ult=Math.min(100,state.ult+15);msg="回避準備！次の敵の攻撃を見切る。";}
+ if(damage>0){const crit=Math.random()<.16;if(crit){damage*=1.8;msg+=" CRITICAL HIT!!";}state.enemyHp=Math.max(0,state.enemyHp-Math.floor(damage));animate("playerCombatant",isUltimate?"ultimate":"cast",isUltimate);animate("enemyCombatant","hit",isUltimate);if(isUltimate){animate("battleArena","big-shake",true);particleBurst(rarityColor(k.rarity),75);}else sound("hit");}
+ if(state.enemyHp<=0){log(msg);renderBattle();endWin();turnBusy=false;return;}
+ renderBattle();log(msg);
+ setTimeout(()=>{enemyAct();if(cooldown>0)cooldown--;turnBusy=false;},450);
+}
+$("roll1").addEventListener("click",()=>summon(1));$("roll10").addEventListener("click",()=>summon(10));
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>page(b.dataset.page)));
+$("filters").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;$("filters").querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));renderCollection()}));
+$("nextQuestion").addEventListener("click",nextQuestion);$("gradeSelect").addEventListener("change",nextQuestion);$("typeSelect").addEventListener("change",nextQuestion);
+$("attackButton").addEventListener("click",()=>playerAction("attack"));$("skillButton").addEventListener("click",()=>playerAction("skill"));$("ultimateButton").addEventListener("click",()=>playerAction("ultimate"));$("guardButton").addEventListener("click",()=>playerAction("guard"));$("dodgeButton").addEventListener("click",()=>playerAction("dodge"));$("newEnemyButton").addEventListener("click",newEnemy);$("battleKanji").addEventListener("change",renderPlayerAura);
+$("cineClose").addEventListener("click",()=>$("cine").classList.remove("show"));$("cine").addEventListener("click",e=>{if(e.target===$("cine"))$("cine").classList.remove("show")});
+load();update();renderCollection();nextQuestion();newEnemy();
 </script>
 </body></html>
